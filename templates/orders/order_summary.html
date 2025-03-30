@@ -1,0 +1,97 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+
+    <style type="text/css">
+      .left-block{
+        display:inline-block;
+        width:670px;
+        font-size:1.2em;
+        margin-left:20px;
+      }
+
+      .right-block{
+        width:200px;
+        display:inline-block;
+        margin-left:20px;
+        Text-align:right;
+      }
+      body{
+        width:960px;
+        margin:auto;
+      }
+    </style>
+
+    <title></title>
+  </head>
+  <body>
+    <div class="container">
+      <div style="margin-bottom:20px;">
+        <div style="margin-top:20px;Text-align: center;">
+          <h3>Final Details for Order #{{ order.order_id }}</h3>
+        </div>
+        <div class="">
+          <b>Order Placed: </b>{{ order.created_date }}<br>
+          <b>Order Number: </b>{{ order.order_id }}<br>
+          <b>Order Total: </b>{{ order.final_total }}
+        </div>
+      </div>
+      <div style="border-style: solid;">
+        <h4 align="center"><b>Dispatched on {{ order.created_date }}</b></h4>
+        <hr style="border-width:2px;border-color:black;">
+          <div style="margin-bottom:10px;margin-left:5px;">
+            <div>
+            <div class="left-block">
+                <b>Items Ordered: </b><br>
+            </div>
+            <div class="right-block">
+                <b>Price</b>
+            </div>
+            </div>
+
+            {% for cart in order.cart.cartitem_set.all %}
+            <div>
+            <div class="left-block">
+            {{ cart.quantity }} of {{ cart.item.title }}, {{ cart.item.description }}
+            </div>
+            <div class="right-block">
+              {{ cart.line_total }}
+            </div>
+            </div>
+            <br>
+            {% endfor %}
+
+          </div>
+          <hr style="border-width:2px;border-color:black;">
+            <div style="margin-bottom:10px;margin-left:20px;">
+              <b>Delevery Address: </b><br>
+              {{ order.full_name }}<br>
+              {{ order.street_address }}<br>
+              {{ order.city }}, {{ order.state }} {{ order.zip }}
+              <br><br>
+              <b>Delivery Option: </b><br>
+              {{ order.payment_method }}
+            </div>
+      </div>
+      <br>
+      <div style="border-style: solid;">
+        <h4 align="center"><b>Payment Details</b></h4>
+        <hr style="border-width:2px;border-color:black;">
+        <div style="margin-bottom:20px;">
+          <div class="left-block">
+            <b>Payment Method:</b><br>
+            {{ order.payment_method }}
+          </div>
+          <div class="right-block">
+            Item(s) Subtotal: {{ order.line_total }}<br>
+            Shipping: 0.00<br>
+            Tax: {{ order.tax_total }}<br>
+            -----------<br>
+            Grand Total: {{ order.final_total }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

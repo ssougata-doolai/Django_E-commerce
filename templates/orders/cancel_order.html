@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container">
+  <div class="mt-5 pt-4">
+    <div class="card card-cascade narrower">
+          <div class="card-body card-body-cascade">
+            <form class="" action="{% url 'orders:cancel-order' order_id %}" method="post">
+              {% csrf_token %}
+                {{ form }}
+                <br>
+                Do you really want to cancel the order?
+                <button type="submit" class="btn btn-warning" name="button">Yes</button>
+                <a href="{% url 'orders:details' order_id %}" class="btn btn-default">No</a>
+            </form>
+
+          </div>
+        </div>
+      </div>
+  </div>
+{% endblock %}

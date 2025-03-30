@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block content %}
+<main class="mt-5 pt-4">
+  <div class="container wow fadeIn">
+    Your phone number is: {{ phone }}
+    <div class="bs-stepper-header">
+    <form class="" action="{% url 'accounts:verify-otp' %}" method="post">
+      {% csrf_token %}
+      {{ form }}
+      <input type="hidden" name="phone" value="{{ phone }}">
+      <button class="btn btn-success" type="submit" name="button">Submit</button>
+    </form>
+</div>
+  </div>
+  </main>
+  {% endblock %}

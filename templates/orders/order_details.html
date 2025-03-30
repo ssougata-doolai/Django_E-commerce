@@ -1,0 +1,227 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block css_content %}
+.side-border{
+  border-left: 4px solid #00a5ff;
+}
+
+.left-block{
+  display:inline-block;
+  width:200px;
+  font-size:1.2em;
+  margin-left:20px;
+}
+
+.right-block{
+  display:inline-block;
+  margin-left:20px;
+}
+
+.left-block .image{
+  height:200px;
+}
+.right-block .right-align{
+  Text-align:right;
+}
+{% endblock %}
+{% block content %}
+<main>
+  <div class="container">
+    <div class="mt-5 pt-4">
+        <div class="card card-cascade narrower">
+
+              <div class="card-body card-body-cascade">
+                <h4>Order Details
+                  {% if order.status == "Canceled" %}
+                    (<strong>Cancelled</strong>)
+                  {% endif %}
+              </h4>
+                <div class="side-border">
+                    <div>
+                      <div class="left-block">
+                        <b>Order No.</b>
+                      </div>
+                      <div class="right-block">
+                        {{ order.order_id }}
+                      </div>
+
+                    </div>
+
+                  <div class="">
+                    <div class="left-block">
+                      <b>Order Placed:</b>
+                    </div>
+                    <div class="right-block right-align">
+                      {{ order.created_date }}
+                    </div>
+                  </div>
+                  <div class="">
+                    <div class="left-block">
+                      <b>Order Total:</b>
+                    </div>
+                    <div class="right-block">
+                      Rs. {{ order.final_total }}({{ order.cart.cartitem_set.count }} item(s))
+                    </div>
+                  </div>
+                  <hr>
+                  {% if order.status == "Finished" %}
+                  <div class="">
+                    <div class="left-block">
+                      View Order Summary
+                    </div>
+                    <div class="right-block">
+                      <a class="btn btn-default" href="{% url 'orders:order-summary' order.order_id %}"><i class="fas fa-angle-double-right"></i></a>
+                    </div>
+                  </div>
+                  <hr>
+                  <div class="">
+                    <div class="left-block">
+                      Download Invoice
+                    </div>
+                    <div class="right-block">
+                      <a class="btn btn-default" href="{% url 'orders:invoice' order.order_id %}?download=dffdds/"><i class="fas fa-angle-double-right"></i></a>
+                    </div>
+                  </div>
+                  {% endif %}
+                </div>
+                <br>
+                <hr>
+                <h4>Shipment Details</h4>
+                {% for item in order.cart.cartitem_set.all %}
+                <div class="side-border">
+                  <div>
+                    <div class="left-block">
+                      <img src="{% static 'img/sample.jpg' %}" height="100px" width="150px" alt="">
+                    </div>
+                    <div class="right-block">
+                      <b><i>{{ item.item.title }}</i></b>
+                      <div>
+                        <b>Qty: </b>{{ item.quantity }}
+                      </div>
+                      <div>
+                        <b>Rs. </b>{{ item.line_total }}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <br>
+                {% endfor %}
+                <hr>
+                <h4>Payment Information</h4>
+                <div class="side-border">
+                  <div>
+                    <div class="left-block">
+                      <b>Payment Method:</b>
+                    </div>
+                    <div class="right-block">
+                      {% if order.status == "Abandoned" %}
+                        <p>Your payment was not completed
+                        </p>
+                        <a class="btn btn-secondary" href="{% url 'orders:payment' order.order_id %}">Retry Payment</a>
+                      {% else %}
+                        {{ order.payment_method }}
+                      {% endif %}
+                    </div>
+                  </div>
+                  <hr>
+                  <div>
+                    <div class="left-block">
+                      <b>Billing Address: </b>
+                    </div>
+                    <div class="right-block">
+                      {{ order.street_address }}, {{ order.city }},
+                      {{ order.state }}, {{ order.zip }}
+                    </div>
+                  </div>
+                </div>
+                <hr>
+                <h4>Order Summary</h4>
+                <div class="side-border">
+                  <div>
+                    <div class="left-block">
+                      <b>Items: </b>
+                    </div>
+                    <div class="right-block">
+                      Rs. {{ order.line_total }}
+                    </div>
+                  </div>
+                  <div>
+                    <div class="left-block">
+                      <b>Total before Tax: </b>
+                    </div>
+                    <div class="right-block">
+                      Rs. {{ order.line_total }}
+                    </div>
+                  </div>
+                  <div>
+                    <div class="left-block">
+                      <b>Tax: </b>
+                    </div>
+                    <div class="right-block">
+                      + Rs. {{ order.tax_total }}
+                    </div>
+                  </div>
+                  <div>
+                    <div class="left-block">
+                      <b>Total: </b>
+                    </div>
+                    <div class="right-block">
+                      Rs. {{ order.final_total }}
+                    </div>
+                  </div>
+                  <div>
+                    <div class="left-block">
+                      <b>Promotion Applied: </b>
+                    </div>
+                    <div class="right-block">
+                      -Rs. 0.00
+                    </div>
+                  </div>
+                  <hr>
+                  <div>
+                    <div class="left-block">
+                      <b>Order Total: </b>
+                    </div>
+                    <div class="right-block">
+                      {{ order.final_total }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {% if order.status == "Abandoned" %}
+              payment failed
+                <a class="btn btn-secondary" href="{% url 'orders:payment' order.order_id %}">Pay Now</a>
+              {% endif %}
+
+              <!-- Button trigger modal
+                <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#exampleModalCenter">
+                  Cancel Order
+                </button>
+             Button trigger modal -->
+              <!-- Modal -->
+              <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title" id="exampleModalCenterTitle">Confermation Message</h5>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                    </div>
+                    <div class="modal-body">
+                      Are you sure to Cancel Order??
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                      <button type="button" id="order_cancle" attr="{{ order.order_id }}" class="btn btn-danger">Yes, Cancel Order</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- modal -->
+        </div>
+    </div>
+  </div>
+</main>
+{% endblock %}

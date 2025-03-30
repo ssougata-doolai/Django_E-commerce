@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block jquery %}
+$('#div_id_chocie').change(function(){
+  selected_value = $("input[name='address']:checked").val();
+  console.log("changed");
+})
+$(document).ready(function(){
+  $('#cash_on_form').hide();
+  $('#card_form').hide();
+
+})
+$('#cash_on').click(function(){
+  $('#cash_on_form').toggle();
+  $('#card_form').hide();
+})
+
+$('#card').click(function(){
+  $('#cash_on_form').hide();
+  $('#card_form').toggle();
+})
+{% endblock %}
+
+{% block content %}
+<main class="mt-5" style="display:unset;">
+  <div class="container wow fadeIn" style="padding:25px;">
+    <div class="card flex-md-row mb-4 shadow-sm ">
+      <div class="card-body d-flex flex-column align-items-start">
+        <form class="" id="payment" action="{% url 'orders:payment' order_id %}" method="post">
+          {% csrf_token %}
+            {{ form }}
+            <button type="submit" name="button">Continue</button>
+        </form>
+
+      </div>
+      </div>
+  </div>
+</main>
+{% endblock %}

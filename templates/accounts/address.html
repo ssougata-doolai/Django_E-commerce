@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% block content %}
+<main class="mt-5 pt-4">
+  <div class="container wow fadeIn">
+    <form class="" style="margin-left:30px;" action="" method="post">
+          {% csrf_token %}
+          {% if form.non_field_errors %}
+            {% for error in form.non_field_errors %}
+                <div class="alert alert-success">
+                  {{ error }}
+                </div>
+              {% endfor %}
+          {% endif %}
+          <div class="card">
+            <div class="card-item">
+          {% for field in form %}
+          <div class="col-md-12 mb-2">
+          <div class="md-form">
+            <!-- <input type="text" id="firstName" class="form-control"> -->
+
+              {{ field }}
+              <label for="" class="">{{ field.label|title }}</label>
+              {% if field.errors %}
+              {% for error in field.errors %}
+              <p id="" class="invalid-feedback"><strong>{{ error }}</strong></p>
+              {% endfor %}
+              {% endif %}
+          </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-item">
+            <a class="btn btn-primary" href="{% url 'products:checkout' %}">Cancle</a>
+            <button class="btn btn-default" type="submit" name="button">Save</button>
+        </div>
+        </div>
+        </form>
+</div>
+</main>
+{% endblock %}
+<script type="text/javascript">
+  $(document).ready(function(){
+    var $myForm = $('.form')
+    $myForm.submit(function(event){
+          console.log("Create POst Working!!")
+        event.preventDefault()
+        var $formData = $(this).serialize()
+        console.log($formData)
+        $.ajax({
+            url: "{% url 'accounts:add-address' %}",
+            method: "POST",
+            data: $formData,
+            success: handleFormSuccess,
+            error: handleFormError,
+        })
+    })
+
+    function handleFormSuccess(data, textStatus, jqXHR){
+        console.log(data)
+        console.log(textStatus)
+        console.log(jqXHR)
+        window.parent.location.reload();window.close()
+        //$myForm.remove(); // reset form data
+    }
+
+    function handleFormError(jqXHR, textStatus, errorThrown){
+        console.log(jqXHR)
+        console.log(textStatus)
+        console.log(errorThrown)
+    }
+})
+</script>

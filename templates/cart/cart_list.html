@@ -1,0 +1,300 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block jquery %}
+
+    $('.box').click(function(){
+      var value = $(this).attr("id");
+      var $div_id = '#div_id_'+$(this).attr('attr1');
+      console.log($div_id);
+      var $_id = $(this);
+      var _id = '#'+value;
+      var pk = $(this).attr("attr");
+      url = '{% url 'cart:active_cart_item' 0 %}'.replace('0', pk);
+    openModal()
+      $.ajax({
+        url: url,
+        dataType: 'json',
+        success: function(json){
+          if(json.error == true)
+          {
+              alert('Order is out of stock')
+          }
+          else
+          {
+              $('#talk').text("Rs."+json.cart_total);
+              if(json.active)
+              {
+                $_id.removeClass('btn btn-outline-success');
+                $_id.addClass('btn btn-success');
+                //$($div_id).appendTo("#div_append1");
+              }
+              else
+              {
+                $_id.removeClass('btn btn-success');
+                $_id.addClass('btn btn-outline-success');
+                //$($div_id).appendTo("#div_append");
+              }
+
+              if(json.len == 0)
+                $("#checkout_btn").attr('disabled',true);
+              else
+                $("#checkout_btn").attr('disabled',false);
+          }
+        },
+        error: function(){
+          alert('Something went wrong');
+          location.reload(true);
+
+        },
+        complete: function(){
+          closeModal()
+            //$('#loader').hide();
+          //  $(".table").fadeIn()
+          }
+      });
+    });
+
+    $('.plus').click(function(){
+      var pk = $(this).attr("attr");
+      console.log(pk)
+      var _id = "#"+pk;
+      var x = $(_id).attr('attr1');
+      if(x >= 4)
+      {
+        alert("Can't order more than 4")
+        return;
+      }
+      url = '{% url 'cart:incri-item' 0 %}'.replace('0',pk);
+      console.log(x);
+      openModal()
+      $.ajax({
+        url: url,
+        dataType: 'json',
+        success: function(json){
+          if(json.error == true)
+          {
+              alert('NOt enough');
+          }
+          else
+          {
+            $(_id).text(json.qty);
+            $(_id).attr('attr1',json.qty);
+            $('#talk').text("Rs."+json.total);
+          }
+          //x = $(this).attr('attr1');
+          //console.log("after: "+x);
+        },
+        error: function(){
+          alert('Something went wrong');
+          location.reload(true);
+        },
+        complete: function(){
+          closeModal();
+        }
+      })
+    })
+
+    $('.minus').click(function(){
+      console.log("minus")
+      var pk = $(this).attr("attr");
+      var _id = "#"+pk;
+      var x = $(_id).attr('attr1');
+      if(x <= 1)
+      {
+        alert("Quantity cant be Zero")
+        return;
+      }
+      var pk = $(this).attr("attr");
+      var _id = "#"+pk;
+      url = '{% url 'cart:decri-item' 0 %}'.replace('0',pk);
+      console.log(x);
+      openModal()
+      $.ajax({
+        url: url,
+        dataType: 'json',
+        success: function(json){
+          if(json.error == true)
+          {
+            alert("Quantity cant be zero")
+          }
+          else
+          {  $(_id).text(json.qty);
+            $(_id).attr('attr1',json.qty);
+            $('#talk').text("Rs."+json.total);
+          }
+        },
+        error: function(){
+          alert('Something went wrong');
+          location.reload(true);
+        },
+        complete: function(){
+          closeModal();
+        }
+      })
+    })
+{% endblock %}
+
+{% block content %}
+
+<!-- main layout -->
+<main class="mt-5 pt-4">
+  <div class="container">
+    {% if empty %}
+    <h2>Your Cart is Empty</h2>
+    <a href="{% url 'products:home' %}" class="btn btn-primary float-left">Continue Shopping</a>
+    {% else %}
+
+    <!--Section: Post-->
+    <section class="mt-4">
+
+      <!--Grid row-->
+      <div class="row">
+        <div id="div_append1">        </div>
+        {% for item in cart.cartitem_set.all %}
+        <!-- Modal -->
+        <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                ...
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal"> Close </button>
+                <a class="btn btn-primary" href="{% url 'cart:remove-from-cart' item.pk %}">Yes Delete</a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- modal -->
+        <!--Grid column-->
+        <div class="col-md-8 mb-4">
+
+          <!--Card-->
+          <div class="card mb-4 wow fadeIn">
+
+            <!--Grid column-->
+            <div class="col-md-6 mb-4">
+
+              <img src="https://mdbootstrap.com/img/Photos/Horizontal/E-commerce/Products/14.jpg" class="img-fluid" alt="">
+
+            </div>
+            <!--Grid column-->
+
+            <!--Card content-->
+            <div class="card-body">
+              <div class="">
+                <div class="col-sm-3 offset-md-1 float-left">
+                  <b class="h5 my-4">{{ item.item.title }}</b>
+                </div>
+                <div class="">
+                  <p>Rs.{% if item.item.discount_price %}
+                          {{ item.item.discount_price }}   <span class="badge badge-primary">Saving {{ item.get_total_item_discount_price }}</span>
+                      {% else %}
+                          {{ item.item.price }}
+                      {% endif %}</p>
+                </div>
+              </div>
+
+              <h5 class="my-4">
+                {{ item.item.description }}
+              </h5>
+              <br>
+              <hr>
+              {% if item.item.quantity %}
+                  <div class="">
+                  <a class="btn btn-primary float-right plus" id="plus" attr="{{ item.id }}" ><i class="fas fa-plus"></i></a>
+                  <div class="float-right">
+                    <button class="btn btn-secondary qty" id="{{ item.id }}" type="button" name="button" attr1="{{ item.quantity }}" disabled>{{ item.quantity }}</button>
+                  </div>
+                  <a class="btn btn-default float-right minus" id="minus" attr="{{ item.id }}" attr1="{{ item.quantity }}"><i class="fas fa-minus"></i></a>
+                  </div>
+              {% else %}
+                  Out of stock
+              {% endif %}
+
+            </div>
+            <button class="{% if item.active %}btn btn-success {% else %}btn btn-outline-success {% endif %}box" attr={{ item.id }} attr1={{ forloop.counter }} name="button" id="{{ item.id }}"><i class="fas fa-check"></i></button>
+            <!-- Button trigger modal -->
+              <button type="button" class="btn btn-danger delete" data-toggle="modal" data-target="#exampleModal">
+                <i class="fas fa-trash"></i>
+              </button>
+
+          </div>
+          <!--/.Card-->
+
+        </div>
+        <!--Grid column-->
+
+        {% endfor %}
+
+        <div id="div_append">    </div>
+        <!--Grid column-->
+        <div class="col-md-4 mb-4" style="">
+
+
+          <!--Card: Jumbotron-->
+          <div class="card blue-gradient mb-4 wow fadeIn" >
+
+            <!-- Content -->
+            <div class="card-body text-white text-center">
+
+              <h4 class="mb-4">
+                <strong><b id="talk">Rs. {{ cart.total }}{% if total_discount %}<span class="badge badge-primary">Saving {{ total_discount }}</span>{% endif %}</b></strong>
+              </h4>
+              <p>
+                <strong>Best & free guide of responsive web design</strong>
+              </p>
+              <p class="mb-4">
+                <strong>The most comprehensive tutorial for the Bootstrap 4. Loved by over 500 000 users. Video
+                  and written versions available. Create your own, stunning website.</strong>
+              </p>
+              <a target="_blank" href="https://mdbootstrap.com/education/bootstrap/" class="btn btn-outline-white btn-md">Start
+                free tutorial
+                <i class="fas fa-graduation-cap ml-2"></i>
+              </a>
+
+            </div>
+            <!-- Content -->
+          </div>
+          <!--Card: Jumbotron-->
+
+
+        </div>
+        <!--Grid column-->
+
+      </div>
+      <!--Grid row-->
+
+    </section>
+    <!--Section: Post-->
+
+    <hr>
+
+    <div class="">
+
+      <a href="{% url 'products:checkout' %}"><button id="checkout_btn" type="" name="button"  class="btn btn-default float-left" {% if not len %}disabled{% endif %}>Place Order</button></a>
+      <a href="{% url 'products:home' %}" class="btn btn-primary float-left">Continue Shopping</a>
+    </div>
+    {% endif %}
+
+<br><br>
+    <hr>
+  </div>
+  <!-- Modal -->
+    <div id="fade" aria-hidden="true">
+
+    </div>
+    <!-- /.modal -->
+    <div id='modal'>
+     <img src="{% static 'img/abc.gif' %}" alt="animated" width='140px' height='140px'>
+    </div>
+</main>
+<!--Main layout-->
+<br>
+{% endblock %}

@@ -1,0 +1,7 @@
+Hello
+
+Activate your email id
+Your activation key {{ activation_key }}
+Click here {{ activation_url }} to activate
+
+Thank you,

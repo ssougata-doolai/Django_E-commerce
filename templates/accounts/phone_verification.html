@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<main class="mt-5 pt-4">
+  <div class="container wow fadeIn">
+
+    <div class="bs-stepper-header">
+
+        <form class="" action="{% url 'accounts:verify-phone' %}" method="post">
+          {% csrf_token %}
+          <div class="form-group">
+            {{ form }}
+            <button type="submit" class="btn btn-outline-primary" name="button">Send OTP</button>
+          </div>
+        </form>
+      </div>
+  </div>
+  </main>
+  {% endblock %}
+
+  {% block jquery %}
+  var g_stepper
+  $(document).ready(function () {
+      g_stepper = new Stepper($('.bs-stepper')[0]);
+      $('#r_form').hide();
+  })
+
+  $('#step1').click(function(){
+    var phone_number = $('#id_phone_number').val();
+    if(phone_number.length == 0)
+    {
+      $('#step1_p').hide();
+      $('#phone_form_error').text('This field is required.');
+      $('#step1_i').addClass('fas fa-exclamation-triangle');
+      $('#id_phone_number').addClass('form-control is-invalid');
+    }
+    else if(phone_number.length < 9)
+    {
+      $('#step1_p').hide();
+      $('#step1_i').addClass('fas fa-exclamation-triangle');
+      $('#id_phone_number').addClass('form-control is-invalid');
+      $('#phone_form_error').text('Invalid Phone Number');
+    }
+    else
+    {
+      $.ajax({
+          url : '{% url 'accounts:verify-phone' %}',
+          type : 'POST',
+          data : {
+              'csrfmiddlewaretoken' : '{{ csrf_token }}'
+          },
+          success : function(data){
+            console.log(data);
+            g_stepper.next();
+          }
+      })
+    }
+  })
+
+  $('#step2_next').click(function(){
+      $('#r_form').show();
+      g_stepper.next();
+  })
+
+  $('#step2_prev').click(function(){
+      g_stepper.to(1);
+  })
+
+  {% endblock %}

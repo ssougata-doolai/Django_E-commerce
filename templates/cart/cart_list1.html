@@ -1,0 +1,167 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block jquery %}
+
+    $('.box').change(function(){
+      var value = $(this).attr("attr");
+  //    console.log(value);
+      var pk = $(this).attr("attr");
+      url = '{% url 'cart:active_cart_item' 0 %}'.replace('0', pk);
+    openModal()
+      $.ajax({
+        url: url,
+        dataType: 'json',
+        success: function(json){
+          console.log(json.cart_total);
+          $('#talk').text("Rs."+json.cart_total);
+          if(json.len == 0)
+            $("#checkout_btn").attr('disabled',true);
+          else
+            $("#checkout_btn").attr('disabled',false);
+        },
+        error: function(){
+          alert('Something went wrong');
+          location.reload(true);
+
+        },
+        complete: function(){
+          closeModal()
+            //$('#loader').hide();
+          //  $(".table").fadeIn()
+          }
+      });
+    });
+
+    $('.plus').click(function(){
+      var pk = $(this).attr("attr");
+      var _id = "#"+pk;
+      var x = $(_id).attr('attr1');
+      if(x >= 4)
+      {
+        alert("Can't order more than 4")
+        return;
+      }
+      url = '{% url 'cart:incri-item' 0 %}'.replace('0',pk);
+      console.log(x);
+      openModal()
+      $.ajax({
+        url: url,
+        dataType: 'json',
+        success: function(json){
+          $(_id).text(json.qty);
+          $(_id).attr('attr1',json.qty);
+          //x = $(this).attr('attr1');
+          console.log("after: "+x);
+        },
+        error: function(){
+          alert('Something went wrong');
+          location.reload(true);
+        },
+        complete: function(){
+          closeModal();
+        }
+      })
+    })
+
+    $('.minus').click(function(){
+      console.log("minus")
+      var pk = $(this).attr("attr");
+      var _id = "#"+pk;
+      var x = $(_id).attr('attr1');
+      if(x <= 1)
+      {
+        alert("Quantity cant be Zero")
+        return;
+      }
+      var pk = $(this).attr("attr");
+      var _id = "#"+pk;
+      url = '{% url 'cart:decri-item' 0 %}'.replace('0',pk);
+      console.log(x);
+      openModal()
+      $.ajax({
+        url: url,
+        dataType: 'json',
+        success: function(json){
+            $(_id).text(json.qty);
+            $(_id).attr('attr1',json.qty);
+        },
+        error: function(){
+          alert('Something went wrong');
+          location.reload(true);
+        },
+        complete: function(){
+          closeModal();
+        }
+      })
+    })
+{% endblock %}
+
+{% block content %}
+
+<!-- main layout -->
+<main class="mt-5 pt-4">
+  <div class="container dark-grey-text mt-5">
+    {% if empty %}
+
+    {% else %}
+    {% for item in cart.cartitem_set.all %}
+    <!--Grid row-->
+    <div class="row wow fadeIn">
+
+      <!--Grid column-->
+      <div class="col-md-6 mb-4">
+
+        <img src="https://mdbootstrap.com/img/Photos/Horizontal/E-commerce/Products/14.jpg" class="img-fluid" alt="">
+
+      </div>
+      <!--Grid column-->
+
+      <!--Grid column-->
+      <div class="col-md-6 mb-4">
+
+        <!--Content-->
+        <div class="p-4">
+
+          <div class="mb-3">
+            <a href="">
+              <span class="">{{ item.item.title }}</span>
+            </a>
+          </div>
+
+          <p class="lead">
+            Rs.{% if item.item.discount_price %}
+                    {{ item.item.discount_price }}   <span class="badge badge-primary">Saving {{ item.get_total_item_discount_price }}</span>
+                {% else %}
+                    {{ item.item.price }}
+                {% endif %}
+          </p>
+          <p align="right">
+            X {{ item.quantity }}
+          </p>
+
+        </div>
+        <!--Content-->
+        <a class="btn btn-primary float-right plus" id="plus" attr="{{ item.id }}" ><i class="fas fa-plus"></i></a>
+        <button class="btn btn-secondary float-right qty" id="{{ item.id }}" type="button" name="button" attr1="{{ item.quantity }}" disabled>{{ item.quantity }}</button>
+        <a class="btn btn-default float-right minus" id="minus" attr="{{ item.id }}" attr1="{{ item.quantity }}"><i class="fas fa-minus"></i></a>
+      
+      </div>
+      <!--Grid column-->
+
+    </div>
+    <!--Grid row-->
+    <hr>
+    {% endfor %}
+    <div class="">
+      <b>{{ cart.total }}{% if total_discount %}<span class="badge badge-primary">Saving {{ total_discount }}</span>{% endif %}</b>
+      <a href="{% url 'products:checkout' %}"><button id="checkout_btn" type="" name="button"  class="btn btn-default float-right ml-2" {% if not len %}disabled{% endif %}>Place Order</button></a>
+      <a href="{% url 'products:home' %}" class="btn btn-primary float-right">Continue Shopping</a>
+    </div>
+    {% endif %}
+<br>
+    <hr>
+  </div>
+</main>
+<!--Main layout-->
+<br>
+{% endblock %}

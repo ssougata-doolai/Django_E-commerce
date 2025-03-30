@@ -1,0 +1,192 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block css_content %}
+.side-border{
+  border-left: 4px solid #00a5ff;
+}
+
+.left-block{
+  display:inline-block;
+  width:200px;
+  font-size:1.2em;
+  margin-left:20px;
+}
+
+.right-block{
+  display:inline-block;
+  margin-left:20px;
+}
+
+.left-block .image{
+  height:200px;
+}
+.right-block .right-align{
+  Text-align:right;
+}
+{% endblock %}
+
+{% block jquery %}
+  $('#order_cancle').click(function(){
+    var order_id = $(this).attr("attr");
+    console.log("Cancle: "+order_id);
+    //url =
+    $.ajax({
+    //  url:
+    })
+  })
+{% endblock %}
+
+{% block content %}
+<main>
+  <div class="container">
+    <div class="mt-5 pt-4">
+      {% if orders %}
+        {% for order in orders %}
+        <div class="card card-cascade narrower">
+              <div class="card-body card-body-cascade">
+                <div class="side-border">
+                    <div>
+                      <div class="left-block">
+                        <b>Order No.</b>
+                      </div>
+                      <div class="right-block">
+                        <a href="{% url 'orders:details' order.order_id %}"><p>{{ order.order_id }}</p></a>
+                      </div>
+                      <div class="right-block" style="float:right;">
+                      {% if order.status == "Canceled" %}
+                      <h4><strong>Cancelled</strong></h4>
+                      {% elif order.shipping_status == "Arrived" %}
+                      <h4><strong>Delivered</strong></h4>
+                      {% endif %}
+                      </div>
+                    </div>
+
+                  <div class="">
+                    <div class="left-block">
+                      <b>Order Placed:</b>
+                    </div>
+                    <div class="right-block right-align">
+                      {{ order.created_date }}
+                    </div>
+                  </div>
+                </div>
+                <br>
+                <hr>
+              {% for item in order.cart.cartitem_set.all %}
+              <div class="side-border">
+                <div>
+                  <div class="left-block">
+                    <img src="{% static 'img/sample.jpg' %}" height="100px" width="150px" alt="">
+                  </div>
+                  <div class="right-block">
+                    <div>
+                        {{ item.item.title }}
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+              <br>
+              <hr>
+              {% endfor %}
+              <div class="side-border">
+                {% if order.status == "Abandoned" %}
+                <div>
+                  <div class="left-block">
+                    <b>Payment Failed </b>
+                  </div>
+                  <div class="right-block">
+                      <a class="btn btn-secondary" href="{% url 'orders:payment' order.order_id %}">Retry Payment</a>
+                  </div>
+                </div>
+
+                <hr>
+                {% endif %}
+                <div>
+                  <div class="left-block">
+                    <b>View order details</b>
+                  </div>
+                  <div class="right-block">
+                    <a href="{% url 'orders:details' order.order_id %}" class="btn btn-secondary"><i class="fas fa-angle-double-right"></i></a>
+                  </div>
+                </div>
+                <hr>
+                {% if order.shipping_status == "Arrived" %}
+                <div>
+                  <div class="left-block">
+                    Ruturn
+                  </div>
+                  <div class="right-block">
+                    <a class="btn btn-default" href=""><i class="fas fa-angle-double-right"></i></a>
+                  </div>
+                </div>
+                <hr>
+                {% elif order.status != "Canceled" %}
+                <div>
+                  <div class="left-block">
+                    Track package
+                  </div>
+                  <div class="right-block">
+                    <a class="btn btn-default" href="{% url 'orders:track' order.order_id %}"><i class="fas fa-angle-double-right"></i></a>
+                  </div>
+                </div>
+                <hr>
+                <div>
+                  <div class="left-block">
+                    Cancel Order
+                  </div>
+                  <div class="right-block">
+                    <a href="{% url 'orders:cancel-order' order.order_id %}" class="btn btn-danger"><i class="fas fa-angle-double-right"></i></a>
+                  </div>
+                </div>
+                {% endif %}
+              </div>
+              </div>
+              <div>
+
+              <div class="" style="display:inline-block;">
+
+              </div>
+              <div class="" style="display:inline-block;">
+              <!-- Button trigger modal
+                <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#exampleModalCenter">
+                  Cancel Order
+                </button>
+                 Button trigger modal -->
+
+
+              </div>
+              <div style="display:inline-block;"></div>
+              </div>
+                <!-- Modal -->
+                <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+                  <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalCenterTitle">Confermation Message</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                      </div>
+                      <div class="modal-body">
+                        Are you sure to Cancel Order??
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" id="order_cancle" attr="{{ order.order_id }}" class="btn btn-danger">Yes, Cancel Order</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- modal -->
+        </div>
+        <br>
+        {% endfor %}
+      {% else %}
+        Empty
+      {% endif %}
+    </div>
+  </div>
+</main>
+{% endblock %}

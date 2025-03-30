@@ -1,0 +1,198 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block jquery %}
+
+    $('.box').change(function(){
+      var value = $(this).attr("attr");
+  //    console.log(value);
+      var pk = $(this).attr("attr");
+      url = '{% url 'cart:active_cart_item' 0 %}'.replace('0', pk);
+    openModal()
+      $.ajax({
+        url: url,
+        dataType: 'json',
+        success: function(json){
+          console.log(json.cart_total);
+          $('#talk').text("Rs."+json.cart_total);
+          if(json.len == 0)
+            $("#checkout_btn").attr('disabled',true);
+          else
+            $("#checkout_btn").attr('disabled',false);
+        },
+        error: function(){
+          alert('Something went wrong');
+          location.reload(true);
+
+        },
+        complete: function(){
+          closeModal()
+            //$('#loader').hide();
+          //  $(".table").fadeIn()
+          }
+      });
+    });
+
+    $('.plus').click(function(){
+      var pk = $(this).attr("attr");
+      var _id = "#"+pk;
+      var x = $(_id).attr('attr1');
+      if(x >= 4)
+      {
+        alert("Can't order more than 4")
+        return;
+      }
+      url = '{% url 'cart:incri-item' 0 %}'.replace('0',pk);
+      console.log(x);
+      openModal()
+      $.ajax({
+        url: url,
+        dataType: 'json',
+        success: function(json){
+          $(_id).text(json.qty);
+          $(_id).attr('attr1',json.qty);
+          //x = $(this).attr('attr1');
+          console.log("after: "+x);
+        },
+        error: function(){
+          alert('Something went wrong');
+          location.reload(true);
+        },
+        complete: function(){
+          closeModal();
+        }
+      })
+    })
+
+    $('.minus').click(function(){
+      console.log("minus")
+      var pk = $(this).attr("attr");
+      var _id = "#"+pk;
+      var x = $(_id).attr('attr1');
+      if(x <= 1)
+      {
+        alert("Quantity cant be Zero")
+        return;
+      }
+      var pk = $(this).attr("attr");
+      var _id = "#"+pk;
+      url = '{% url 'cart:decri-item' 0 %}'.replace('0',pk);
+      console.log(x);
+      openModal()
+      $.ajax({
+        url: url,
+        dataType: 'json',
+        success: function(json){
+            $(_id).text(json.qty);
+            $(_id).attr('attr1',json.qty);
+        },
+        error: function(){
+          alert('Something went wrong');
+          location.reload(true);
+        },
+        complete: function(){
+          closeModal();
+        }
+      })
+    })
+{% endblock %}
+
+{% block content %}
+<main>
+  <div class="container">
+    <div class="mt-5 pt-4">
+
+      <!-- table div .-->
+      <div class="table">
+      <table class="col-sm-12">
+        {% if empty %}
+        <div class="col-sm-12">
+            <h1 style="text-align:center;">{{ empty_message }}</h1>
+            <tr>
+              <td></td><td ></td><td></td><td></td><td></td>
+              <td colspan="3"><a href="" class="btn btn-primary">Continue Shopping</a></td>
+            </tr>
+        </div>
+        {% else %}
+        <thead>
+          <th>Item</th><th>Qty</th><th>Price</th>
+        </thead>
+
+        {% for item in cart.cartitem_set.all %}
+        <!-- Card Narrower -->
+        <div class="card card-cascade narrower">
+          <div class="card">
+            <div class="card-item">
+              <form method="post">
+              <input class="box" attr={{ item.id }} type="checkbox" {% if item.active %}Checked{% endif %}>
+            </form>
+            </div>
+          </div>
+          <!-- Card image -->
+          <div class="view view-cascade overlay">
+            <img  class="card-img-top" src="https://mdbootstrap.com/img/Photos/Lightbox/Thumbnail/img%20(147).jpg" alt="Card image cap">
+            <a>
+              <div class="mask rgba-white-slight"></div>
+            </a>
+
+          </div>
+
+          <!-- Card content -->
+          <div class="card-body card-body-cascade">
+
+            <!-- Label -->
+            <h5 class="pink-text pb-2 pt-1"></h5>
+            <!-- Title -->
+            <h4 class="font-weight-bold card-title">{{ item.item.title }}</h4>
+            <!-- Text -->
+            <p class="card-text">{{item.item.description}}</p>
+            <p align="right">
+              Rs.{% if item.item.discount_price %}
+                      {{ item.item.discount_price }}   <span class="badge badge-primary">Saving {{ item.get_total_item_discount_price }}</span>
+                  {% else %}
+                      {{ item.item.price }}
+                  {% endif %}
+              </p>
+              <p align="right">
+                X {{ item.quantity }}
+              </p>
+            <!-- Button -->
+            <a class="btn btn-primary float-right plus" id="plus" attr="{{ item.id }}" ><i class="fas fa-plus"></i></a>
+            <button class="btn btn-secondary float-right qty" id="{{ item.id }}" type="button" name="button" attr1="{{ item.quantity }}" disabled>{{ item.quantity }}</button>
+            <a class="btn btn-default float-right minus" id="minus" attr="{{ item.id }}" attr1="{{ item.quantity }}"><i class="fas fa-minus"></i></a>
+          </div>
+        </div>
+        <!-- Card Narrower -->
+
+
+      {% endfor %}
+
+        <tr>
+          <td colspan="2"><b>Total</b></td>
+          <td id="talk" attr="1"><b>{{ cart.total }}{% if total_discount %}<span class="badge badge-primary">Saving {{ total_discount }}</span>{% endif %}</b></td>
+        </tr>
+        <tr>
+          <td colspan="5">
+            <a href="{% url 'products:checkout' %}"><button id="checkout_btn" type="" name="button"  class="btn btn-default float-right ml-2" {% if not len %}disabled{% endif %}>Place Order</button></a>
+            <a href="{% url 'products:home' %}" class="btn btn-primary float-right">Continue Shopping</a>
+          </td>
+        </tr>
+
+      {% endif %}
+      </table>
+
+      <!-- table div .-->
+      <!-- Modal -->
+        <div id="fade" aria-hidden="true">
+
+        </div>
+        <!-- /.modal -->
+        <div id='modal'>
+         <img src="{% static 'img/abc.gif' %}" alt="animated" width='140px' height='140px'>
+        </div>
+
+
+  </div>
+</div>
+
+</main>
+{% endblock %}

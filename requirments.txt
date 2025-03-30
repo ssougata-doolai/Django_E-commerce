@@ -1,0 +1,6 @@
+Django
+Pillow
+xhtml2pdf
+django-crispy-forms
+crispy-bootstrap4
+pycryptodome

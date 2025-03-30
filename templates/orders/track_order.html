@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block css_content %}
+.side-border{
+  border-left: 4px dashed #bee1f3;
+  height:50px;
+  margin-left:60px;
+}
+
+.side-border1{
+  border-left: 4px dashed #bee1f3;
+  margin-left:60px;
+}
+
+.left-block{
+  display:inline-block;
+  //width:200px;
+  font-size:1.2em;
+  margin-left:20px;
+}
+
+.right-block{
+  display:inline-block;
+  margin-left:20px;
+}
+
+.left-block .image{
+  height:200px;
+}
+.right-block .right-align{
+  Text-align:right;
+}
+{% endblock %}
+
+{% block content %}
+<main>
+  <div class="container">
+    <div class="mt-5 pt-4">
+        <div class="card card-cascade narrower">
+            <div class="" style="margin-left:50px;margin-top:40px;">
+                <i class="fas fa-map-marker-alt"></i> Delever to {{ order.full_name }} - {{ order.city }} {{ order.zip }}
+            </div>
+
+              <div class="card-body card-body-cascade">
+                <div>
+                  <div class="left-block">
+                    <button type="button" name="button" class="btn btn-warning" disabled><i class="fas fa-check"></i></button>
+                    Ordered Placed on
+                  </div>
+                  <div class="right-block">
+                    {{ order.created_date }}
+                  </div>
+                </div>
+                <div class="side-border" {% if order.created_date %}style="border-color:#ffc107;"{% endif %}></div>
+
+                <div>
+                  <div class="left-block">
+                    <button type="button" name="button" class="btn btn{% if order.status != 'Finished' %}-outline{% endif %}-warning" disabled><i class="fas fa-check"></i></button>
+                    Order Confirmation
+                  </div>
+                  <div class="right-block">
+                    {% if order.status == "Finished" %}
+                    {{ order.updated_date }}
+                    {% endif %}
+                  </div>
+                </div>
+
+              {% if order.status == "Finished" %}
+                <div class="side-border" style="border-color:#ffc107;"></div>
+              {% endif %}
+
+
+                  <div>
+                    <div class="left-block">
+                      <button type="button" name="button" class="btn btn{% if not track_details %}-outline{% endif %}-warning" disabled><i class="fas fa-check"></i></button>
+                      Order Shipped
+                    </div>
+                    <div class="right-block">
+                      {% if track_details %}
+                      {% with track_details|first as obj %}
+                      {{ obj.created_date }}
+                      {% endwith %}
+                      {% endif %}
+                    </div>
+                  </div>
+                  <div id="show_track" class="side-border1" {% if track_details %}style="border-color:#ffc107;{% endif %}">
+                    <div class="left-block">
+                    </div>
+                    <div id="track" class="right-block">
+                      {% for track in track_details %}
+                      {{ track.location }} on {{ track.created_date }}
+                      {% endfor %}
+                    </div>
+                  </div>
+
+
+                <div>
+                  <div class="left-block">
+                    <button type="button" name="button" class="btn btn{% if order.shipping_status != 'Arrived' %}-outline{% endif %}-warning" disabled><i class="fas fa-check"></i></button>
+                    {% if order.shipping_status != 'Arrived' %}Arriving on{% else %}Arrived on{% endif %}
+                  </div>
+                  <div class="right-block">
+                    monday
+                  </div>
+                </div>
+              </div>
+        </div>
+    </div>
+  </div>
+</main>
+{% endblock %}
+
+{% block jquery %}
+$(document).ready(function(){
+  $('#track').hide();
+})
+
+$('#show_track').click(function(){
+  $('#track').toggle();
+})
+{% endblock %}

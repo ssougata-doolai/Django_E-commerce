@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container wow fadeIn">
+  <div class="mt-5 pt-4">
+
+      <h2 class="my-5 h2 text-center">Login</h2>
+
+    <div class="col-md-8 mb-4">
+    <div class="card">
+    <form class="card-body" action="" method="POST">
+      {% csrf_token %}
+      {% if form.non_field_errors %}
+        {% for error in form.non_field_errors %}
+            <div class="alert alert-success">
+              {{ error }}
+            </div>
+          {% endfor %}
+      {% endif %}
+      {% for field in form %}
+      <div class="col-md-12 mb-2">
+      <div class="md-form">
+        <!-- <input type="text" id="firstName" class="form-control"> -->
+
+          {{ field }}
+          <label for="id_{{ field.html_name }}" class="">{{ field.html_name|title }}</label>
+          {% if field.errors %}
+          {% for error in field.errors %}
+          <p id="" class="invalid-feedback"><strong>{{ error }}</strong></p>
+          {% endfor %}
+          {% endif %}
+      </div>
+      </div>
+      {% endfor %}
+      <button class="btn btn-default" type="submit" name="button">Login</button>
+    </form>
+    </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
